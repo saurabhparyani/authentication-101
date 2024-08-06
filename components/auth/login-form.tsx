@@ -19,11 +19,14 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import login from "@/actions/login";
 import { useState, useTransition } from "react";
+import { RiEyeFill, RiEyeOffFill } from "react-icons/ri";
 
 export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const [isPasswordTyping, setIsPasswordTyping] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -42,6 +45,10 @@ export const LoginForm = () => {
         setSuccess(data.success);
       });
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -79,12 +86,27 @@ export const LoginForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="******"
-                      type="password"
-                      {...field}
-                      disabled={isPending}
-                    />
+                    <div className="flex flex-row">
+                      <Input
+                        placeholder="******"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setIsPasswordTyping(e.target.value.length > 0);
+                        }}
+                        disabled={isPending}
+                      />
+                      {isPasswordTyping && (
+                        <button
+                          type="button"
+                          onClick={togglePasswordVisibility}
+                          className="ml-4 text-gray-700"
+                        >
+                          {showPassword ? <RiEyeFill /> : <RiEyeOffFill />}
+                        </button>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
